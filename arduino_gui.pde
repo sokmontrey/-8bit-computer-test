@@ -1,6 +1,7 @@
 import controlP5.*;
 import processing.serial.*;
 import cc.arduino.*;
+import java.util.Arrays;
 
 color bg_color = color(36, 33, 33);
 color panel_color = color(66, 64, 64);
@@ -10,7 +11,7 @@ color accent_color = color(244, 93, 1);
 class Container{
   public Controller[] elements;
   
-  float scaling_size_factor = 1.4;
+  float scaling_size_factor = 2;
   PFont font = createFont("arial", 20);
   color bg_color = color(86, 84, 84);
   color fg_color = color(244, 93, 1);
@@ -161,29 +162,14 @@ class ArduinoController{
     arduino = arduino_object;
   }
 }
-
 class GUIController{
   
   ControlP5 cp5;
 
-  Container[] components;
+  Container[] components = new Container[0];
   
   public GUIController(ControlP5 cp5_obj){
     cp5 = cp5_obj;
-    
-    
-    Container temp_components[] = {
-      new Col(3, cp5)
-      .setOffset(50,50)
-      .addElement(cp5.addButton("b1"))
-      .addElement(cp5.addButton("b2"))
-      .addElement(cp5.addTextfield("Bus pins").setValue("2,3,4,5,6,7,8,9"))
-    };
-    
-    components = new Container[temp_components.length];
-    components = temp_components;
-    
-    render();
   }
   
   public void draw(){
@@ -199,22 +185,42 @@ class GUIController{
       component.render();
     }
   }
+    public GUIController addComponent(Container new_component){
+        int l = components.length;
+        Container[] temp_components = Arrays.copyOf(components, l);
+
+        if(l == 0){
+            components = new Container[1];
+            components[0] = new_component;
+        }else{
+            components = new Container[l + 1];
+            for(int i=0; i<l+1; i++){
+                components[i] = temp_components[i];
+            }
+            components[l] = new_component;
+        }
+
+        return this;
+    }
 }
 
 ArduinoController ard;
 GUIController gui;
+ControlP5 cp5;
 
 void setup(){
   size(1280, 720);
   background(bg_color); 
   
-  gui = new GUIController(new ControlP5(this));
-  ard = new ArduinoController(new Arduino(this, Arduino.list()[0], 57600));
-  gui.render();
+  cp5 = new ControlP5(this);
+  gui = new GUIController(cp5);
+
+    // ard = new ArduinoController(new Arduino(this, Arduino.list()[0], 57600));
+    gui.render();
 }
 
 
 void draw() {
-  background(bg_color);
-  gui.draw();
+background(bg_color);
+gui.draw();
 }
