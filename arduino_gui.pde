@@ -9,31 +9,26 @@ color font_color = color(214, 214, 177);
 color accent_color = color(244, 93, 1);
 
 Arduino arduino;
+ArduinoController ard;
 GUIController gui;
 ControlP5 cp5;
 
 int bus_state[] = {0,0,0,0,0,0,0,0};
-int clock_pin = 10;
-int bus_pin[] = {2,3,4,5,6,7,8,9};
-boolean is_read_state = false;
+int clock_state = 0;
 
 void setup(){
-  size(1280, 720);
-  background(bg_color); 
-  
-  cp5 = new ControlP5(this);
-  gui = new GUIController(cp5);
+    size(1280, 720);
+    background(bg_color); 
 
-  addComponentToGUI();
+    cp5 = new ControlP5(this);
+    gui = new GUIController(cp5);
 
-    if(Arduino.list().length > 0)
-        arduino = new Arduino(this, Arduino.list()[0], 57600);
-    
+    arduino = new Arduino(this, Arduino.list()[0], 57600);
+    ard = new ArduinoController(arduino);
 
-    arduino.pinMode(clock_pin, arduino.OUTPUT);
-
-    switchToRead();
+    addComponentToGUI();
 }
+
 void script(){
     switchToWrite();
 
@@ -48,18 +43,36 @@ void script(){
     write("00100000");
     write("01000000");
     write("10000000");
+
+    switchToRead();
 }
+
+void switchToWrite(){
+    Button button = cp5.get(Button.class, "read_state_button");
+    ard.switchToWrite();
+    button.setColorBackground(panel_color);
+}
+void switchToRead(){
+    Button button = cp5.get(Button.class, "read_state_button");
+    ard.switchToRead();
+    button.setColorBackground(color(20, 200,100));
+}
+
 void write(String state){
     println("Write: " + state);
+
     changeBusStateFromString(state);
 
-    sendSignal();
+    ard.pulseBusState(bus_state, 0);
 
-    delay(500);
+    delay(100);
 }
 
 void addComponentToGUI(){
     String bus_pin_string = "";
+    int bus_pin[] = ard.bus_pin;
+    int clock_pin = ard.clock_pin;
+
     for(int i=0; i<bus_pin.length; i++){
         bus_pin_string += bus_pin[i];
         if(i >= bus_pin.length-1) break;
@@ -74,7 +87,7 @@ void addComponentToGUI(){
 
     gui.addComponent(
         new Col(4, cp5)
-        .setOffset(320,120)
+        .setOffset(50,250)
         .addElement(cp5.addButton("run_script_button")
             .setLabel("Run Script")
             .onClick(new CallbackListener() {
@@ -84,10 +97,10 @@ void addComponentToGUI(){
             })
         )
         .addElement(cp5.addButton("send_signal_bus_state_button")
-            .setLabel("Send Signal")
+            .setLabel("Pulse Bus")
             .onClick(new CallbackListener() {
                 public void controlEvent(CallbackEvent theEvent) {
-                    sendSignal();
+                    ard.pulseBusState(bus_state, 0);
                 }
             })
         )
@@ -105,10 +118,11 @@ void addComponentToGUI(){
             .setLabel("Read State")
             .onClick(new CallbackListener() {
                 public void controlEvent(CallbackEvent theEvent) {
-                    if(is_read_state)
+                    if(ard.is_read_state){
                         switchToWrite();
-                    else
+                    }else{
                         switchToRead();
+                    }
                 }
             })
         )
@@ -116,76 +130,35 @@ void addComponentToGUI(){
     );
 
     gui.render();
-}
-void switchToRead(){
-    println("Switch to read");
 
-    is_read_state = true;
-
-    setBusToINPUT();
-    cp5.get(Button.class, "read_state_button")
-        .setColorBackground(color(20, 200, 100));
-}
-void switchToWrite(){
-
-    println("Swicth to write");
-
-    is_read_state = false;
-
-    setBusToOUTPUT();
-    cp5.get(Button.class, "read_state_button")
-        .setColorBackground(panel_color);
-}
-
-void setBusToLOW(){
-    for(int i=0; i<bus_pin.length; i++){
-        arduino.digitalWrite(bus_pin[i], arduino.LOW);
+    Button button = cp5.get(Button.class, "read_state_button");
+    if(ard.is_read_state){
+        button.setColorBackground(color(20, 200,100));
+    }else{
+        button.setColorBackground(panel_color);
     }
-}
-
-void setBusToOUTPUT(){
-    for(int i=0; i<bus_pin.length; i++){
-        arduino.pinMode(bus_pin[i], arduino.OUTPUT);
-    }
-}
-
-void setBusToINPUT(){
-    for(int i=0; i<bus_pin.length; i++){
-        arduino.pinMode(bus_pin[i], arduino.INPUT);
-    }
-}
-
-void sendSignal(){
-
-    println("Send Signal");
-
-    for(int i=0; i<bus_state.length; i++){
-        arduino.digitalWrite(bus_pin[i], bus_state[i]);
-    }
-    delay(100);
-    arduino.digitalWrite(clock_pin, arduino.HIGH);
-    delay(100);
-    arduino.digitalWrite(clock_pin, arduino.LOW);
-
-    setBusToLOW();
 }
 void draw() {
     background(bg_color);
     gui.draw();
 
-    checkBusStateHover();
-    if(is_read_state)
+    if(ard.is_read_state){
         changeBusStateFromArduino();
+        changeClockStateFromArduino();
+    }
 
     drawBusState();
+    drawClockState();
+
     stroke(panel_color);
     fill(panel_color);
 }
 
 void changeBusStateFromArduino(){
-    for(int i=0; i<bus_state.length; i++){
-        bus_state[i] = arduino.digitalRead(bus_pin[i]);
-    }
+    bus_state = ard.getBusState();
+}
+void changeClockStateFromArduino(){
+    clock_state = ard.getClockState();
 }
 void changeBusStateFromString(String value){
     String splited[] = value.split("");
@@ -193,6 +166,7 @@ void changeBusStateFromString(String value){
         bus_state[i] = Integer.parseInt(splited[i]);
     }
 }
+
 int bus_state_x = 50,
     bus_state_y = 50,
     bus_state_padding = 10,
@@ -210,19 +184,19 @@ void drawBusState(){
     }
 }
 
-void checkBusStateHover(){
-    for(int i=0; i<bus_state.length; i++){
-        int start = bus_state_x + bus_state_padding * i + i * bus_state_side ;
+int clock_state_x = 600,
+    clock_state_y = 50,
+    clock_state_side = 40;
 
-        if(mouseY < bus_state_y || mouseY > bus_state_y + bus_state_side) continue;
+void drawClockState(){
+    int start = clock_state_x;
 
-        if(mouseX < start) continue;
-        if(mouseX > start + bus_state_side) continue;
-
-        fill(font_color);
-        rect(start, bus_state_y, bus_state_side, bus_state_side);
+    if(clock_state == 1){
+        fill(180, 180, 20);
+    } else {
+        fill(panel_color);
     }
-    // fill(panel_color);
+    rect(start, clock_state_y, clock_state_side, clock_state_side );
 }
 
 void checkMouseClickedBusState(){
