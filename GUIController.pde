@@ -28,16 +28,12 @@ public class GUIController{
         int l = components.length;
         Container[] temp_components = Arrays.copyOf(components, l);
 
-        if(l == 0){
-            components = new Container[1];
-            components[0] = new_component;
-        }else{
-            components = new Container[l + 1];
-            for(int i=0; i<l+1; i++){
-                components[i] = temp_components[i];
-            }
-            components[l] = new_component;
+        components = new Container[l+1];
+
+        for(int i=0; i<l; i++){
+            components[i] = temp_components[i];
         }
+        components[l] = new_component;
 
         return this;
     }
