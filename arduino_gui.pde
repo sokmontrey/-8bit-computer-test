@@ -17,7 +17,7 @@ int bus_state[] = {0,0,0,0,0,0,0,0};
 int clock_state = 0;
 
 void setup(){
-    size(1280, 720);
+    size(600, 720);
     background(bg_color); 
 
     cp5 = new ControlP5(this);
@@ -26,47 +26,65 @@ void setup(){
     arduino = new Arduino(this, Arduino.list()[0], 57600);
     ard = new ArduinoController(arduino);
 
-    addComponentToGUI();
+    //addComponentToGUI();
+    script();
 }
 
 void script(){
-    switchToWrite();
-
-//TODO: render each step
-    write("00000001");
-    write("01000101");
-    write("01110110");
-    write("00000010");
-    write("00000100");
-    write("00001000");
-    write("00010000");
-    write("00100000");
-    write("01000000");
-    write("10000000");
-
-    switchToRead();
+  ard.addOtherPin("clock_pin", 14);
+  setupRAM();
+  println("_________TEST___________");
+  ard.readPin("clock_pin");
+  println("_________START__________");
+  delay(1000);
+  
+  writeRAM("00000000", "10100000");
+  writeRAM("00000001", "01100000");
+  writeRAM("00000010", "11100000");
+  writeRAM("00000011", "00010000");
+  
+  setRAMAddr("00000000");
 }
 
-void switchToWrite(){
-    Button button = cp5.get(Button.class, "read_state_button");
-    ard.switchToWrite();
-    button.setColorBackground(panel_color);
-}
-void switchToRead(){
-    Button button = cp5.get(Button.class, "read_state_button");
-    ard.switchToRead();
-    button.setColorBackground(color(20, 200,100));
+void setupRAM(){
+  ard.addOtherPin("we_pin", 11);
+  ard.addOtherPin("oe_pin", 12);
+  ard.addOtherPin("me_pin", 10);
 }
 
-void write(String state){
-    println("Write: " + state);
-
-    changeBusStateFromString(state);
-
-    ard.pulseBusState(bus_state, 0);
-
-    delay(100);
+void writeRAM(String addr, String value){
+  setRAMAddr(addr);
+  
+  ard.setBusState(value);
+  ard.writePin("we_pin", 1);
+  ard.writePin("me_pin", 0);
+  ard.pulsePin("clock_pin", 10);
 }
+void setRAMAddr(String addr){
+  ard.writePin("oe_pin", 0);
+  ard.writePin("we_pin", 0);
+  ard.writePin("me_pin", 1);
+  ard.setBusState(addr);
+  ard.pulsePin("clock_pin", 10);
+}
+
+void readRAM(String addr){
+  setRAMAddr(addr);
+  ard.writePin("oe_pin", 1);
+  ard.writePin("me_pin", 0);
+  ard.printBusState();
+}
+
+//void switchToWrite(){
+//    Button button = cp5.get(Button.class, "read_state_button");
+//    ard.switchBusToWrite();
+//    button.setColorBackground(panel_color);
+//}
+//void switchToRead(){
+//    Button button = cp5.get(Button.class, "read_state_button");
+//    ard.switchBusToRead();
+//    button.setColorBackground(color(20, 200,100));
+//}
 
 void addComponentToGUI(){
     String bus_pin_string = "";
@@ -118,11 +136,11 @@ void addComponentToGUI(){
             .setLabel("Read State")
             .onClick(new CallbackListener() {
                 public void controlEvent(CallbackEvent theEvent) {
-                    if(ard.is_read_state){
-                        switchToWrite();
-                    }else{
-                        switchToRead();
-                    }
+                    //if(ard.is_read_state){
+                    //    switchToWrite();
+                    //}else{
+                    //    switchToRead();
+                    //}
                 }
             })
         )
@@ -142,13 +160,9 @@ void draw() {
     background(bg_color);
     gui.draw();
 
-    if(ard.is_read_state){
-        changeBusStateFromArduino();
-        changeClockStateFromArduino();
-    }
+    changeBusStateFromArduino();
 
     drawBusState();
-    drawClockState();
 
     stroke(panel_color);
     fill(panel_color);
@@ -156,9 +170,6 @@ void draw() {
 
 void changeBusStateFromArduino(){
     bus_state = ard.getBusState();
-}
-void changeClockStateFromArduino(){
-    clock_state = ard.getClockState();
 }
 void changeBusStateFromString(String value){
     String splited[] = value.split("");
@@ -183,22 +194,6 @@ void drawBusState(){
         rect(start, bus_state_y, bus_state_side, bus_state_side );
     }
 }
-
-int clock_state_x = 600,
-    clock_state_y = 50,
-    clock_state_side = 40;
-
-void drawClockState(){
-    int start = clock_state_x;
-
-    if(clock_state == 1){
-        fill(180, 180, 20);
-    } else {
-        fill(panel_color);
-    }
-    rect(start, clock_state_y, clock_state_side, clock_state_side );
-}
-
 void checkMouseClickedBusState(){
     for(int i=0; i<bus_state.length; i++){
         int start = bus_state_x + bus_state_padding * i + i * bus_state_side ;
