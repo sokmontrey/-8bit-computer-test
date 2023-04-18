@@ -17,7 +17,7 @@ int bus_state[] = {0,0,0,0,0,0,0,0};
 int clock_state = 0;
 
 void setup(){
-    size(600, 720);
+    size(600, 300);
     background(bg_color); 
 
     cp5 = new ControlP5(this);
@@ -31,48 +31,88 @@ void setup(){
 }
 
 void script(){
-  ard.addOtherPin("clock_pin", 14);
-  setupRAM();
-  println("_________TEST___________");
-  ard.readPin("clock_pin");
+  println("_________SETUP__________");
+  
+  ard.addOtherPin("clock", 14);
+  ard.setBusState("00000000");
+  
+  //setupRAM();
+  ard.readPin("clock");
+  setupREG();
+  
   println("_________START__________");
   delay(1000);
+ 
+  writeC("10011100");
+  writeINTS("10111100");
+ 
+  //ard.writePin("ints_we", 0);
+  //ard.writePin("c_oe", 0);
+  //ard.writePin("c_we", 0);
   
-  writeRAM("00000000", "10100000");
-  writeRAM("00000001", "01100000");
-  writeRAM("00000010", "11100000");
-  writeRAM("00000011", "00010000");
+  //ard.setBusState("10010010");
+  //ard.writePin("ints_we", 1);
   
-  setRAMAddr("00000000");
+  //writeRAM("00000000", "10100000");
+  //writeRAM("00000001", "01100000");
+  //writeRAM("00000010", "11100000");
+  //writeRAM("00000011", "00010000");
+  
+  //setRAMAddr("00000000");
+}
+
+void writeC(String value){
+  ard.writePin("c_oe", 0);
+  ard.writePin("c_we", 1);
+  
+  ard.setBusState(value);
+  ard.pulsePin("clock", 100);
+  ard.writePin("c_we", 0);
+}
+void writeINTS(String value){
+  ard.writePin("ints_we", 1);
+  
+  ard.setBusState(value);
+  ard.pulsePin("clock", 100);
+  ard.writePin("ints_we", 0);
+}
+
+void setupREG(){
+  ard.addOtherPin("ints_we", 10);
+  ard.addOtherPin("c_we", 11);
+  ard.addOtherPin("c_oe", 12);
 }
 
 void setupRAM(){
-  ard.addOtherPin("we_pin", 11);
-  ard.addOtherPin("oe_pin", 12);
-  ard.addOtherPin("me_pin", 10);
+  ard.addOtherPin("ram_we", 11);
+  ard.addOtherPin("ram_oe", 12);
+  ard.addOtherPin("addr_we", 10);
 }
 
 void writeRAM(String addr, String value){
   setRAMAddr(addr);
   
   ard.setBusState(value);
-  ard.writePin("we_pin", 1);
-  ard.writePin("me_pin", 0);
-  ard.pulsePin("clock_pin", 10);
+  ard.writePin("ram_we", 1);
+  ard.writePin("addr_we", 0);
+  ard.pulsePin("clock", 10);
+  ard.writePin("ram_we", 0);
 }
 void setRAMAddr(String addr){
-  ard.writePin("oe_pin", 0);
-  ard.writePin("we_pin", 0);
-  ard.writePin("me_pin", 1);
+  ard.writePin("ram_oe", 0);
+  ard.writePin("ram_we", 0);
+  ard.writePin("addr_we", 1);
   ard.setBusState(addr);
-  ard.pulsePin("clock_pin", 10);
+  ard.pulsePin("clock", 10);
+  ard.writePin("addr_we", 0);
 }
 
 void readRAM(String addr){
   setRAMAddr(addr);
-  ard.writePin("oe_pin", 1);
-  ard.writePin("me_pin", 0);
+  ard.writePin("ram_oe", 1);
+  ard.writePin("addr_we", 0);
   ard.printBusState();
+  ard.writePin("ram_oe", 0);
 }
 
 //void switchToWrite(){

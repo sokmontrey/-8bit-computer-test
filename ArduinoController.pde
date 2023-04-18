@@ -8,7 +8,7 @@ public class ArduinoController {
     public int bus_pin[] = {2,3,4,5,6,7,8,9};
     public boolean is_read_state = false;
     public HashMap<String, Integer> other_pin = new HashMap<String, Integer>();
-    public boolean is_log = false;
+    public boolean is_log = true;
 
     public ArduinoController(Arduino arduino_obj){
         arduino = arduino_obj;
@@ -23,12 +23,13 @@ public class ArduinoController {
     }
     
     public void writePin(String pin_name, int state){
-       if(is_log)
+      if(is_log)
         println("WRITE pin: '" + pin_name + "' , state: " + state);
       arduino.pinMode(other_pin.get(pin_name), arduino.OUTPUT);
       arduino.digitalWrite(other_pin.get(pin_name), state);
     }
     public void pulsePin(String pin_name, int duration){
+      arduino.pinMode(other_pin.get(pin_name), arduino.OUTPUT);
       writePin(pin_name, arduino.HIGH);
       if(is_log)
         println("PULSE HIGH: " + pin_name);
