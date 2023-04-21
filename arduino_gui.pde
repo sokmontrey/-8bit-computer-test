@@ -38,14 +38,21 @@ void script(){
   
   //setupRAM();
   ard.readPin("clock");
-  setupREG();
+  setupALU();
   
   println("_________START__________");
   delay(1000);
- 
-  writeC("10011100");
-  writeINTS("10111100");
- 
+  
+  writeA("10000000");
+  writeB("00111001");
+  
+  
+  //REG
+  
+   // writeC("10011100");
+   // writeINTS("10111100");
+
+  //RAM
   //ard.writePin("ints_we", 0);
   //ard.writePin("c_oe", 0);
   //ard.writePin("c_we", 0);
@@ -59,6 +66,32 @@ void script(){
   //writeRAM("00000011", "00010000");
   
   //setRAMAddr("00000000");
+}
+
+void setupALU(){
+  ard.addOtherPin("reg_we", 10);
+  ard.addOtherPin("a_se", 11);
+}
+
+void writeA(String value){
+  ard.writePin("a_se", 1);
+  ard.writePin("reg_we", 1);
+  
+  ard.setBusState(value);
+  
+  ard.pulsePin("clock", 100);
+  ard.writePin("reg_we", 0);
+  ard.writePin("a_se", 0);
+}
+void writeB(String value){
+  ard.writePin("a_se", 0);
+  ard.writePin("reg_we", 1);
+  
+  ard.setBusState(value);
+  
+  ard.pulsePin("clock", 100);
+  ard.writePin("reg_we", 0);
+  ard.writePin("a_se", 0);
 }
 
 void writeC(String value){
