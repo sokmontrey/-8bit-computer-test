@@ -41,11 +41,27 @@ void script(){
   setupALU();
   
   println("_________START__________");
-  delay(1000);
+  delay(2000);
   
-  writeA("10000000");
-  writeB("00111001");
+  writeA("00001010");
+  writeB("00000101");
   
+  
+  ard.writePin("alu_oe", 1);
+  ard.writePin("a_se", 1);
+  ard.writePin("reg_we", 1);
+  
+  ard.pulsePin("clock", 100);
+  
+  ard.writePin("alu_oe", 0);
+  ard.writePin("a_se", 0);
+  ard.writePin("reg_we", 0);
+  
+  ard.writePin("flg_en", 1);
+  ard.pulsePin("clock", 100);
+  //ard.writePin("reg_we", 0);
+  //ard.writePin("a_se", 0);
+  //ard.writePin("alu_oe", 0);
   
   //REG
   
@@ -66,11 +82,14 @@ void script(){
   //writeRAM("00000011", "00010000");
   
   //setRAMAddr("00000000");
+  ard.setBusToINPUT();
 }
 
 void setupALU(){
   ard.addOtherPin("reg_we", 10);
   ard.addOtherPin("a_se", 11);
+  ard.addOtherPin("alu_oe", 12);
+  ard.addOtherPin("flg_en", 13);
 }
 
 void writeA(String value){
