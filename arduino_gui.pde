@@ -38,51 +38,140 @@ void script(){
   
   //setupRAM();
   ard.readPin("clock");
-  setupALU();
+  ard.addOtherPin("addr_we", 10);
+  ard.addOtherPin("ram_we", 11);
+  ard.addOtherPin("ram_oe", 12);
+  
+  ard.addOtherPin("a_se", 13);
+  ard.addOtherPin("reg_we", 15);
+  
+  ard.addOtherPin("alu_oe", 16);
+  ard.addOtherPin("sub_en", 17);
+  ard.addOtherPin("flg_en", 18);
   
   println("_________START__________");
   delay(2000);
   
-  writeA("00001010");
-  writeB("00000101");
+  //LOAD A with 0
   
-  
-  ard.writePin("alu_oe", 1);
+  ard.setBusState("00000001");
   ard.writePin("a_se", 1);
   ard.writePin("reg_we", 1);
-  
   ard.pulsePin("clock", 100);
-  
-  ard.writePin("alu_oe", 0);
   ard.writePin("a_se", 0);
   ard.writePin("reg_we", 0);
   
-  ard.writePin("flg_en", 1);
-  ard.pulsePin("clock", 100);
-  //ard.writePin("reg_we", 0);
-  //ard.writePin("a_se", 0);
-  //ard.writePin("alu_oe", 0);
+  //LOAD B with 1
   
-  //REG
-  
-   // writeC("10011100");
-   // writeINTS("10111100");
-
-  //RAM
-  //ard.writePin("ints_we", 0);
-  //ard.writePin("c_oe", 0);
-  //ard.writePin("c_we", 0);
-  
-  //ard.setBusState("10010010");
-  //ard.writePin("ints_we", 1);
-  
-  //writeRAM("00000000", "10100000");
-  //writeRAM("00000001", "01100000");
-  //writeRAM("00000010", "11100000");
-  //writeRAM("00000011", "00010000");
-  
-  //setRAMAddr("00000000");
+  ard.setBusState("00000000");
   ard.setBusToINPUT();
+  ard.writePin("reg_we", 1);
+  ard.pulsePin("clock", 100);
+  ard.writePin("reg_we", 0);
+  
+  for(int i=0; i<255; i++){
+    
+    ard.writePin("ram_we", 1);
+    ard.writePin("alu_oe", 1);
+    //ard.writePin("a_se", 1);
+    ard.writePin("reg_we", 1);
+    ard.writePin("addr_we", 1);
+    ard.pulsePin("clock", 0);
+    ard.writePin("ram_we", 0);
+    ard.writePin("alu_oe", 0);
+    ard.writePin("a_se", 0);
+    ard.writePin("reg_we", 0);
+    ard.writePin("addr_we", 0);
+  }
+  
+  ////RAM 0
+  
+  //ard.setBusState("00000000");
+  //ard.setBusToINPUT();
+  //ard.writePin("addr_we", 1);
+  //ard.pulsePin("clock", 10);
+  //ard.writePin("addr_we", 0);
+  
+  //ard.setBusState("00001111");
+  //ard.setBusToINPUT();
+  //ard.writePin("ram_we", 1);
+  //ard.writePin("ram_we", 0);
+  
+  ////RAM 1
+  
+  //ard.setBusState("00000001");
+  //ard.setBusToINPUT();
+  //ard.writePin("addr_we", 1);
+  //ard.pulsePin("clock", 10);
+  //ard.writePin("addr_we", 0);
+  
+  //ard.setBusState("00000101");
+  //ard.setBusToINPUT();
+  //ard.writePin("ram_we", 1);
+  //ard.writePin("ram_we", 0);
+  
+  ////LOAD A
+  //ard.setBusState("00000000");
+  //ard.setBusToINPUT();
+  //ard.writePin("addr_we", 1);
+  //ard.pulsePin("clock", 10);
+  //ard.writePin("addr_we", 0);
+  
+  //ard.writePin("ram_oe", 1);
+  //ard.writePin("a_se", 1);
+  //ard.writePin("reg_we", 1);
+  //ard.pulsePin("clock", 10);
+  //ard.writePin("ram_oe", 0);
+  //ard.writePin("a_se", 0);
+  //ard.writePin("reg_we", 0);
+  
+  ////LOAD B
+  //ard.setBusState("00000001");
+  //ard.setBusToINPUT();
+  //ard.writePin("addr_we", 1);
+  //ard.pulsePin("clock", 10);
+  //ard.writePin("addr_we", 0);
+  
+  //ard.writePin("ram_oe", 1);
+  //ard.writePin("a_se", 0);
+  //ard.writePin("reg_we", 1);
+  //ard.pulsePin("clock", 10);
+  //ard.writePin("ram_oe", 0);
+  //ard.writePin("a_se", 0);
+  //ard.writePin("reg_we", 0);
+  
+  ////SUB EN
+  
+  //ard.writePin("sub_en", 1);
+  //ard.writePin("alu_oe", 1);
+  //ard.writePin("a_se", 1);
+  //ard.writePin("reg_we", 1);
+  //ard.writePin("flg_en", 1);
+  //ard.pulsePin("clock", 10);
+  //ard.writePin("sub_en", 0);
+  //ard.writePin("alu_oe", 0);
+  //ard.writePin("a_se", 0);
+  //ard.writePin("reg_we", 0);
+  //ard.writePin("sub_en", 1);
+  //ard.writePin("alu_oe", 1);
+  //ard.writePin("a_se", 1);
+  //ard.writePin("reg_we", 1);
+  //ard.writePin("flg_en", 1);
+  //ard.pulsePin("clock", 10);
+  //ard.writePin("sub_en", 0);
+  //ard.writePin("alu_oe", 0);
+  //ard.writePin("a_se", 0);
+  //ard.writePin("reg_we", 0);
+  //ard.writePin("sub_en", 1);
+  //ard.writePin("alu_oe", 1);
+  //ard.writePin("a_se", 1);
+  //ard.writePin("reg_we", 1);
+  //ard.writePin("flg_en", 1);
+  //ard.pulsePin("clock", 10);
+  //ard.writePin("sub_en", 0);
+  //ard.writePin("alu_oe", 0);
+  //ard.writePin("a_se", 0);
+  //ard.writePin("reg_we", 0);
 }
 
 void setupALU(){

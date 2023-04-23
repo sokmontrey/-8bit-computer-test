@@ -8,7 +8,7 @@ public class ArduinoController {
     public int bus_pin[] = {2,3,4,5,6,7,8,9};
     public boolean is_read_state = false;
     public HashMap<String, Integer> other_pin = new HashMap<String, Integer>();
-    public boolean is_log = true;
+    public boolean is_log = false;
 
     public ArduinoController(Arduino arduino_obj){
         arduino = arduino_obj;
