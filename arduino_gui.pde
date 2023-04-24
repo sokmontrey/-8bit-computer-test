@@ -10,7 +10,6 @@ color accent_color = color(244, 93, 1);
 
 Arduino arduino;
 ArduinoController ard;
-GUIController gui;
 ControlP5 cp5;
 
 int bus_state[] = {0,0,0,0,0,0,0,0};
@@ -21,7 +20,6 @@ void setup(){
     background(bg_color); 
 
     cp5 = new ControlP5(this);
-    gui = new GUIController(cp5);
 
     arduino = new Arduino(this, Arduino.list()[0], 57600);
     ard = new ArduinoController(arduino);
@@ -267,79 +265,8 @@ void readRAM(String addr){
 //    button.setColorBackground(color(20, 200,100));
 //}
 
-void addComponentToGUI(){
-    String bus_pin_string = "";
-    int bus_pin[] = ard.bus_pin;
-    int clock_pin = ard.clock_pin;
-
-    for(int i=0; i<bus_pin.length; i++){
-        bus_pin_string += bus_pin[i];
-        if(i >= bus_pin.length-1) break;
-        bus_pin_string += ",";
-    }
-    gui.addComponent(
-        new Col(2, cp5)
-        .setOffset(50,120)
-        .addElement(cp5.addLabel("Clock Pin: " + clock_pin))
-        .addElement(cp5.addLabel("Bus Pin: " + bus_pin_string))
-    );
-
-    gui.addComponent(
-        new Col(4, cp5)
-        .setOffset(50,250)
-        .addElement(cp5.addButton("run_script_button")
-            .setLabel("Run Script")
-            .onClick(new CallbackListener() {
-                public void controlEvent(CallbackEvent theEvent) {
-                    script();
-                }
-            })
-        )
-        .addElement(cp5.addButton("send_signal_bus_state_button")
-            .setLabel("Pulse Bus")
-            .onClick(new CallbackListener() {
-                public void controlEvent(CallbackEvent theEvent) {
-                    ard.pulseBusState(bus_state, 0);
-                }
-            })
-        )
-        .addElement(cp5.addButton("bus_state_reset_button")
-            .setLabel("Reset")
-            .onClick(new CallbackListener() {
-                public void controlEvent(CallbackEvent theEvent) {
-                    for(int i=0; i<bus_state.length; i++){
-                        bus_state[i] = 0;
-                    }
-                }
-            })
-        )
-        .addElement(cp5.addButton("read_state_button")
-            .setLabel("Read State")
-            .onClick(new CallbackListener() {
-                public void controlEvent(CallbackEvent theEvent) {
-                    //if(ard.is_read_state){
-                    //    switchToWrite();
-                    //}else{
-                    //    switchToRead();
-                    //}
-                }
-            })
-        )
-
-    );
-
-    gui.render();
-
-    Button button = cp5.get(Button.class, "read_state_button");
-    if(ard.is_read_state){
-        button.setColorBackground(color(20, 200,100));
-    }else{
-        button.setColorBackground(panel_color);
-    }
-}
 void draw() {
     background(bg_color);
-    gui.draw();
 
     changeBusStateFromArduino();
 
