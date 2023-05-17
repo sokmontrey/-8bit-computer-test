@@ -31,237 +31,45 @@ void setup(){
 void script(){
   println("_________SETUP__________");
   
-  ard.addOtherPin("clock", 14);
+  ard.addPin("clock", 14);
   ard.setBusState("00000000");
-  
-  //setupRAM();
-  ard.readPin("clock");
-  ard.addOtherPin("addr_we", 10);
-  ard.addOtherPin("ram_we", 11);
-  ard.addOtherPin("ram_oe", 12);
-  
-  ard.addOtherPin("a_se", 13);
-  ard.addOtherPin("reg_we", 15);
-  
-  ard.addOtherPin("alu_oe", 16);
-  ard.addOtherPin("sub_en", 17);
-  ard.addOtherPin("flg_en", 18);
   
   println("_________START__________");
   delay(2000);
   
-  //LOAD A with 0
+  ShiftController shft = new ShiftController(ard, 10, 11);
+  shft.addPin("a", 9);
+  shft.addPin("b", 10);
+  shft.addPin("c", 11);
   
-  ard.setBusState("00011000");
-  ard.writePin("a_se", 1);
-  ard.writePin("reg_we", 1);
-  ard.pulsePin("clock", 100);
-  ard.writePin("a_se", 0);
-  ard.writePin("reg_we", 0);
+  shft.setPin("a", 1);
+  shft.setPin("b", 0);
+  shft.setPin("c", 0);
+  shft.pushState();
   
+  delay(1000);
   
-  ard.setBusState("00001000");
-  ard.setBusToINPUT();
-  ard.writePin("reg_we", 1);
-  ard.pulsePin("clock", 100);
-  ard.writePin("reg_we", 0);
+  shft.setPin("a", 0);
+  shft.setPin("b", 1);
+  shft.setPin("c", 0);
+  shft.pushState();
   
-  ard.writePin("sub_en", 1);
+  delay(1000);
   
-  //for(int i=0; i<255; i++){
-    
-  //  ard.writePin("ram_we", 1);
-  //  ard.writePin("alu_oe", 1);
-  //  //ard.writePin("a_se", 1);
-  //  ard.writePin("addr_we", 1);
-  //  ard.pulsePin("clock", 500);
-  //  ard.writePin("alu_oe", 0);
-  //  ard.writePin("a_se", 0);
-  //  ard.writePin("reg_we", 0);
-  //}
+  shft.setPin("a", 0);
+  shft.setPin("b", 0);
+  shft.setPin("c", 1);
+  shft.pushState();
   
-  ////RAM 0
+  delay(1000);
   
-  //ard.setBusState("00000000");
-  //ard.setBusToINPUT();
-  //ard.writePin("addr_we", 1);
-  //ard.pulsePin("clock", 10);
-  //ard.writePin("addr_we", 0);
+  shft.setPin("a", 1);
+  shft.setPin("b", 1);
+  shft.setPin("c", 1);
+  shft.pushState();
   
-  //ard.setBusState("00001111");
-  //ard.setBusToINPUT();
-  //ard.writePin("ram_we", 1);
-  //ard.writePin("ram_we", 0);
-  
-  ////RAM 1
-  
-  //ard.setBusState("00000001");
-  //ard.setBusToINPUT();
-  //ard.writePin("addr_we", 1);
-  //ard.pulsePin("clock", 10);
-  //ard.writePin("addr_we", 0);
-  
-  //ard.setBusState("00000101");
-  //ard.setBusToINPUT();
-  //ard.writePin("ram_we", 1);
-  //ard.writePin("ram_we", 0);
-  
-  ////LOAD A
-  //ard.setBusState("00000000");
-  //ard.setBusToINPUT();
-  //ard.writePin("addr_we", 1);
-  //ard.pulsePin("clock", 10);
-  //ard.writePin("addr_we", 0);
-  
-  //ard.writePin("ram_oe", 1);
-  //ard.writePin("a_se", 1);
-  //ard.writePin("reg_we", 1);
-  //ard.pulsePin("clock", 10);
-  //ard.writePin("ram_oe", 0);
-  //ard.writePin("a_se", 0);
-  //ard.writePin("reg_we", 0);
-  
-  ////LOAD B
-  //ard.setBusState("00000001");
-  //ard.setBusToINPUT();
-  //ard.writePin("addr_we", 1);
-  //ard.pulsePin("clock", 10);
-  //ard.writePin("addr_we", 0);
-  
-  //ard.writePin("ram_oe", 1);
-  //ard.writePin("a_se", 0);
-  //ard.writePin("reg_we", 1);
-  //ard.pulsePin("clock", 10);
-  //ard.writePin("ram_oe", 0);
-  //ard.writePin("a_se", 0);
-  //ard.writePin("reg_we", 0);
-  
-  ////SUB EN
-  
-  //ard.writePin("sub_en", 1);
-  //ard.writePin("alu_oe", 1);
-  //ard.writePin("a_se", 1);
-  //ard.writePin("reg_we", 1);
-  //ard.writePin("flg_en", 1);
-  //ard.pulsePin("clock", 10);
-  //ard.writePin("sub_en", 0);
-  //ard.writePin("alu_oe", 0);
-  //ard.writePin("a_se", 0);
-  //ard.writePin("reg_we", 0);
-  //ard.writePin("sub_en", 1);
-  //ard.writePin("alu_oe", 1);
-  //ard.writePin("a_se", 1);
-  //ard.writePin("reg_we", 1);
-  //ard.writePin("flg_en", 1);
-  //ard.pulsePin("clock", 10);
-  //ard.writePin("sub_en", 0);
-  //ard.writePin("alu_oe", 0);
-  //ard.writePin("a_se", 0);
-  //ard.writePin("reg_we", 0);
-  //ard.writePin("sub_en", 1);
-  //ard.writePin("alu_oe", 1);
-  //ard.writePin("a_se", 1);
-  //ard.writePin("reg_we", 1);
-  //ard.writePin("flg_en", 1);
-  //ard.pulsePin("clock", 10);
-  //ard.writePin("sub_en", 0);
-  //ard.writePin("alu_oe", 0);
-  //ard.writePin("a_se", 0);
-  //ard.writePin("reg_we", 0);
+  delay(1000);
 }
-
-void setupALU(){
-  ard.addOtherPin("reg_we", 10);
-  ard.addOtherPin("a_se", 11);
-  ard.addOtherPin("alu_oe", 12);
-  ard.addOtherPin("flg_en", 13);
-}
-
-void writeA(String value){
-  ard.writePin("a_se", 1);
-  ard.writePin("reg_we", 1);
-  
-  ard.setBusState(value);
-  
-  ard.pulsePin("clock", 100);
-  ard.writePin("reg_we", 0);
-  ard.writePin("a_se", 0);
-}
-void writeB(String value){
-  ard.writePin("a_se", 0);
-  ard.writePin("reg_we", 1);
-  
-  ard.setBusState(value);
-  
-  ard.pulsePin("clock", 100);
-  ard.writePin("reg_we", 0);
-  ard.writePin("a_se", 0);
-}
-
-void writeC(String value){
-  ard.writePin("c_oe", 0);
-  ard.writePin("c_we", 1);
-  
-  ard.setBusState(value);
-  ard.pulsePin("clock", 100);
-  ard.writePin("c_we", 0);
-}
-void writeINTS(String value){
-  ard.writePin("ints_we", 1);
-  
-  ard.setBusState(value);
-  ard.pulsePin("clock", 100);
-  ard.writePin("ints_we", 0);
-}
-
-void setupREG(){
-  ard.addOtherPin("ints_we", 10);
-  ard.addOtherPin("c_we", 11);
-  ard.addOtherPin("c_oe", 12);
-}
-
-void setupRAM(){
-  ard.addOtherPin("ram_we", 11);
-  ard.addOtherPin("ram_oe", 12);
-  ard.addOtherPin("addr_we", 10);
-}
-
-void writeRAM(String addr, String value){
-  setRAMAddr(addr);
-  
-  ard.setBusState(value);
-  ard.writePin("ram_we", 1);
-  ard.writePin("addr_we", 0);
-  ard.pulsePin("clock", 10);
-  ard.writePin("ram_we", 0);
-}
-void setRAMAddr(String addr){
-  ard.writePin("ram_oe", 0);
-  ard.writePin("ram_we", 0);
-  ard.writePin("addr_we", 1);
-  ard.setBusState(addr);
-  ard.pulsePin("clock", 10);
-  ard.writePin("addr_we", 0);
-}
-
-void readRAM(String addr){
-  setRAMAddr(addr);
-  ard.writePin("ram_oe", 1);
-  ard.writePin("addr_we", 0);
-  ard.printBusState();
-  ard.writePin("ram_oe", 0);
-}
-
-//void switchToWrite(){
-//    Button button = cp5.get(Button.class, "read_state_button");
-//    ard.switchBusToWrite();
-//    button.setColorBackground(panel_color);
-//}
-//void switchToRead(){
-//    Button button = cp5.get(Button.class, "read_state_button");
-//    ard.switchBusToRead();
-//    button.setColorBackground(color(20, 200,100));
-//}
 
 void draw() {
     background(bg_color);

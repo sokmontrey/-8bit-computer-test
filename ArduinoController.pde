@@ -1,6 +1,44 @@
 import cc.arduino.*;
 import processing.serial.*;
 
+public class ShiftController {
+  ArduinoController ard;
+  
+  private HashMap<String, Integer> pin = new HashMap<String, Integer>();
+  private int pin_state[] = {0,0,0,0, 0,0,0,0, 0,0,0,0};
+  
+  public ShiftController(ArduinoController ard_obj, int data_pin, int clock_pin){
+    ard = ard_obj;
+    ard.addPin("clock", clock_pin);
+    ard.addPin("data", data_pin);
+  }
+  
+  public void addPin(String pin_name, int pin_index){
+    pin.put(pin_name, pin_index);
+  }
+  
+  public void setPin(String pin_name, int state){
+    pin_state[pin.get(pin_name)] = state;
+  }
+  
+  public void pushState(){
+    for(int i=0; i<pin_state.length; i++){
+      pushData(pin_state[i]);
+    }
+  }
+  
+  public void pushData(int data){
+    ard.writePin("data", data);
+    ard.pulsePin("clock", 0);
+  }
+  
+  public void clear(){
+    for(int i=0; i<pin_state.length; i++){
+      pushData(0);
+    }
+  }
+}
+
 public class ArduinoController {
     Arduino arduino;
 
@@ -16,7 +54,7 @@ public class ArduinoController {
         println("\n\n");
     }
     
-    public void addOtherPin(String pin_name, int pin_number){
+    public void addPin(String pin_name, int pin_number){
       if(is_log)
         println("ADD pin: '" + pin_name + "' , pin #n: " + pin_number);
       other_pin.put(pin_name, pin_number);
