@@ -1,44 +1,6 @@
 import cc.arduino.*;
 import processing.serial.*;
 
-public class ShiftController {
-  ArduinoController ard;
-  
-  private HashMap<String, Integer> pin = new HashMap<String, Integer>();
-  private int pin_state[] = {0,0,0,0, 0,0,0,0, 0,0,0,0};
-  
-  public ShiftController(ArduinoController ard_obj, int data_pin, int clock_pin){
-    ard = ard_obj;
-    ard.addPin("clock", clock_pin);
-    ard.addPin("data", data_pin);
-  }
-  
-  public void addPin(String pin_name, int pin_index){
-    pin.put(pin_name, pin_index);
-  }
-  
-  public void setPin(String pin_name, int state){
-    pin_state[pin.get(pin_name)] = state;
-  }
-  
-  public void pushState(){
-    for(int i=0; i<pin_state.length; i++){
-      pushData(pin_state[i]);
-    }
-  }
-  
-  public void pushData(int data){
-    ard.writePin("data", data);
-    ard.pulsePin("clock", 0);
-  }
-  
-  public void clear(){
-    for(int i=0; i<pin_state.length; i++){
-      pushData(0);
-    }
-  }
-}
-
 public class ArduinoController {
     Arduino arduino;
 
@@ -50,7 +12,7 @@ public class ArduinoController {
 
     public ArduinoController(Arduino arduino_obj){
         arduino = arduino_obj;
-        arduino.pinMode(clock_pin, arduino.OUTPUT);
+        arduino.pinMode(clock_pin, Arduino.OUTPUT);
         println("\n\n");
     }
     
@@ -58,26 +20,27 @@ public class ArduinoController {
       if(is_log)
         println("ADD pin: '" + pin_name + "' , pin #n: " + pin_number);
       other_pin.put(pin_name, pin_number);
+      arduino.pinMode(pin_number, Arduino.OUTPUT);
     }
     
     public void writePin(String pin_name, int state){
       if(is_log)
         println("WRITE pin: '" + pin_name + "' , state: " + state);
-      arduino.pinMode(other_pin.get(pin_name), arduino.OUTPUT);
+      arduino.pinMode(other_pin.get(pin_name), Arduino.OUTPUT);
       arduino.digitalWrite(other_pin.get(pin_name), state);
     }
     public void pulsePin(String pin_name, int duration){
-      arduino.pinMode(other_pin.get(pin_name), arduino.OUTPUT);
-      writePin(pin_name, arduino.HIGH);
+      arduino.pinMode(other_pin.get(pin_name), Arduino.OUTPUT);
+      writePin(pin_name, Arduino.HIGH);
       if(is_log)
         println("PULSE HIGH: " + pin_name);
       delay(duration);
       if(is_log)
         println("PULSE LOW: " + pin_name + ", duraiton: " + duration);
-      writePin(pin_name, arduino.LOW);
+      writePin(pin_name, Arduino.LOW);
     }
     public int readPin(String pin_name){
-      arduino.pinMode(other_pin.get(pin_name), arduino.INPUT);
+      arduino.pinMode(other_pin.get(pin_name), Arduino.INPUT);
       int value = arduino.digitalRead(other_pin.get(pin_name));
       if(is_log)
         println("READ pin: " + pin_name + ", value: " + value);
@@ -89,7 +52,7 @@ public class ArduinoController {
       arduino.pinMode(other_pin.get(pin_name), mode);
     }
     public void printPin(String pin_name){
-      arduino.pinMode(other_pin.get(pin_name), arduino.INPUT);
+      arduino.pinMode(other_pin.get(pin_name), Arduino.INPUT);
       if(is_log)
         println("Pin: " + arduino.digitalRead(other_pin.get(pin_name)));
     }
@@ -109,9 +72,9 @@ public class ArduinoController {
         }
 
         delay(10);
-        arduino.digitalWrite(clock_pin, arduino.HIGH);
+        arduino.digitalWrite(clock_pin, Arduino.HIGH);
         delay(clock_duration);
-        arduino.digitalWrite(clock_pin, arduino.LOW);
+        arduino.digitalWrite(clock_pin, Arduino.LOW);
 
         setBusToLOW();
     }
@@ -132,19 +95,19 @@ public class ArduinoController {
 
     public void setBusToLOW(){
         for(int i=0; i<bus_pin.length; i++){
-            arduino.digitalWrite(bus_pin[i], arduino.LOW);
+            arduino.digitalWrite(bus_pin[i], Arduino.LOW);
         }
     }
 
     public void setBusToOUTPUT(){
         for(int i=0; i<bus_pin.length; i++){
-            arduino.pinMode(bus_pin[i], arduino.OUTPUT);
+            arduino.pinMode(bus_pin[i], Arduino.OUTPUT);
         }
     }
 
     public void setBusToINPUT(){
         for(int i=0; i<bus_pin.length; i++){
-            arduino.pinMode(bus_pin[i], arduino.INPUT);
+            arduino.pinMode(bus_pin[i], Arduino.INPUT);
         }
     }
     public int[] getBusState(){

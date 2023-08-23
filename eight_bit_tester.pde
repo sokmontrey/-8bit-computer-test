@@ -31,44 +31,19 @@ void setup(){
 void script(){
   println("_________SETUP__________");
   
-  ard.addPin("clock", 14);
+  ard.addPin("clk", 14);
   ard.setBusState("00000000");
   
-  println("_________START__________");
-  delay(2000);
-  
-  ShiftController shft = new ShiftController(ard, 10, 11);
-  shft.addPin("a", 9);
-  shft.addPin("b", 10);
-  shft.addPin("c", 11);
-  
-  shft.setPin("a", 1);
-  shft.setPin("b", 0);
-  shft.setPin("c", 0);
-  shft.pushState();
-  
+  println("Wait 3s");
+  delay(1000);
+  println("Wait 2s");
+  delay(1000);
+  println("Wait 1s");
   delay(1000);
   
-  shft.setPin("a", 0);
-  shft.setPin("b", 1);
-  shft.setPin("c", 0);
-  shft.pushState();
+  ard.setBusState("10101111");
+  ard.pulsePin("clk", 1000);
   
-  delay(1000);
-  
-  shft.setPin("a", 0);
-  shft.setPin("b", 0);
-  shft.setPin("c", 1);
-  shft.pushState();
-  
-  delay(1000);
-  
-  shft.setPin("a", 1);
-  shft.setPin("b", 1);
-  shft.setPin("c", 1);
-  shft.pushState();
-  
-  delay(1000);
 }
 
 void draw() {
@@ -107,28 +82,4 @@ void drawBusState(){
         }
         rect(start, bus_state_y, bus_state_side, bus_state_side );
     }
-}
-void checkMouseClickedBusState(){
-    for(int i=0; i<bus_state.length; i++){
-        int start = bus_state_x + bus_state_padding * i + i * bus_state_side ;
-
-        if(mouseY < bus_state_y || mouseY > bus_state_y + bus_state_side) continue;
-
-        if(mouseX < start) continue;
-        if(mouseX > start + bus_state_side) continue;
-
-        fill(20, 200, 100);
-        rect(start, bus_state_y, bus_state_side, bus_state_side);
-
-        if(bus_state[i] == 1){
-            bus_state[i] =0;
-        }else{
-            bus_state[i] =1;
-        }
-        fill(panel_color);
-    }
-}
-
-void mouseClicked(){
-    checkMouseClickedBusState();
 }
